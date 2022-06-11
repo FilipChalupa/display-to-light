@@ -64,7 +64,7 @@ while (true) {
 				`http://${neewerServerIp}:8080/NeewerLite-Python/doAction?nopage&light=${
 					light.mac
 				}&mode=HSI&hue=${Math.floor(hsl.h)}&sat=${100}&brightness=${
-					hsl.l > 20 ? hsl.l : 0
+					hsl.l > 2 ? hsl.l : 0
 				}`,
 			)
 		} catch (error) {
