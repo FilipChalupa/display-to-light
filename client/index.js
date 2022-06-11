@@ -63,7 +63,9 @@ while (true) {
 			await fetch(
 				`http://${neewerServerIp}:8080/NeewerLite-Python/doAction?nopage&light=${
 					light.mac
-				}&mode=HSI&hue=${Math.floor(hsl.h)}&sat=${100}&brightness=${hsl.l}`,
+				}&mode=HSI&hue=${Math.floor(hsl.h)}&sat=${100}&brightness=${
+					hsl.l > 20 ? hsl.l : 0
+				}`,
 			)
 		} catch (error) {
 			console.error(error)
