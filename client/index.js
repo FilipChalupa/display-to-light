@@ -1,7 +1,7 @@
 import { colorRgbToHsl } from '../utils/colorRgbToHsl.js'
 import { delay } from '../utils/delay.js'
 
-const neewerServerIp = '192.168.0.251'
+const neewerServerIp = '192.168.0.143'
 
 const videoStream = await navigator.mediaDevices.getUserMedia({ video: true })
 
