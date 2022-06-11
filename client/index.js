@@ -59,11 +59,16 @@ while (true) {
 		light.element.style.setProperty('--base', `rgb(${r}, ${g}, ${b})`)
 		light.element.style.setProperty('--hue', `hsl(${hsl.h}, 100%, ${hsl.l}%)`)
 
-		await fetch(
-			`http://${neewerServerIp}:8080/NeewerLite-Python/doAction?nopage&light=${
-				light.mac
-			}&mode=HSI&hue=${Math.floor(hsl.h)}&sat=${100}&brightness=${hsl.l}`,
-		)
-		await delay(500)
+		try {
+			await fetch(
+				`http://${neewerServerIp}:8080/NeewerLite-Python/doAction?nopage&light=${
+					light.mac
+				}&mode=HSI&hue=${Math.floor(hsl.h)}&sat=${100}&brightness=${hsl.l}`,
+			)
+		} catch (error) {
+			console.error(error)
+			await delay(250)
+		}
+		await delay(50)
 	}
 }
