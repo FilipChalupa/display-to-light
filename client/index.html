@@ -10,6 +10,12 @@
 				max-width: 100%;
 				display: block;
 			}
+			.light {
+				margin: 0.5em 0;
+				display: flex;
+				align-items: center;
+				column-gap: 0.5em;
+			}
 			.color {
 				position: relative;
 				display: inline-block;
@@ -26,12 +32,30 @@
 				border-radius: 50%;
 				background-color: var(--hue);
 			}
+			.status {
+				display: inline-block;
+			}
+			video {
+				margin-top: 1em;
+			}
+			canvas {
+				width: 6rem;
+				height: 3rem;
+			}
 		</style>
 	</head>
 	<body>
-		<video autoplay muted></video>
 		<canvas></canvas>
-		<div class="color" id="color-1"></div>
-		<div class="color" id="color-2"></div>
+		<div class="light">
+			<div class="color"></div>
+			<button type="button">Connect</button>
+			<div class="status">❌</div>
+		</div>
+		<div class="light">
+			<div class="color"></div>
+			<button type="button">Connect</button>
+			<div class="status">❌</div>
+		</div>
+		<video autoplay muted></video>
 	</body>
 </html>

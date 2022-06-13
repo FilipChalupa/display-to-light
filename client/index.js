@@ -1,8 +1,6 @@
 import { colorRgbToHsl } from '../utils/colorRgbToHsl.js'
 import { delay } from '../utils/delay.js'
 
-const neewerServerIp = '192.168.0.143'
-
 const videoStream = await navigator.mediaDevices.getUserMedia({ video: true })
 
 const video = document.querySelector('video')
@@ -12,8 +10,8 @@ const context = canvas.getContext('2d')
 video.srcObject = videoStream
 
 const canvasSize = {
-	width: 100,
-	height: 50,
+	width: canvas.clientWidth,
+	height: canvas.clientHeight,
 }
 
 const lights = [
@@ -23,7 +21,7 @@ const lights = [
 			x: Math.round(canvasSize.width / 4),
 			y: Math.round(canvasSize.height / 2),
 		},
-		element: document.querySelector('#color-1'),
+		element: document.querySelector('.light'),
 	},
 	{
 		mac: 'EC:C7:10:29:B1:22',
@@ -31,7 +29,7 @@ const lights = [
 			x: Math.round((canvasSize.width / 4) * 3),
 			y: Math.round(canvasSize.height / 2),
 		},
-		element: document.querySelector('#color-2'),
+		element: document.querySelector('.light + .light'),
 	},
 ]
 
@@ -45,6 +43,37 @@ document.addEventListener('keyup', (event) => {
 	}
 })
 
+lights.forEach((light) => {
+	light.element.querySelector('button').addEventListener('click', async () => {
+		const serviceUuid = '69400001-b5a3-f393-e0a9-e50e24dcca99'
+		const characteristicUuid = '69400002-b5a3-f393-e0a9-e50e24dcca99'
+		const onCommand = new Uint8Array([0x78, 0x81, 0x01, 0x01, 0xfb])
+		const offCommand = new Uint8Array([0x78, 0x81, 0x01, 0x02, 0xfc])
+
+		const device = await navigator.bluetooth.requestDevice({
+			filters: [{ namePrefix: 'NEEWER' }, { services: [serviceUuid] }],
+		})
+		console.log(device)
+		const server = await device.gatt.connect()
+		console.log(server)
+		const service = await server.getPrimaryService(serviceUuid)
+		console.log(service)
+		const characteristic = await service.getCharacteristic(characteristicUuid)
+		console.log(characteristic)
+
+		await characteristic.writeValue(onCommand)
+		await delay(100)
+		await characteristic.writeValue(offCommand)
+		await delay(100)
+		await characteristic.writeValue(onCommand)
+		// await delay(100)
+		// await characteristic.writeValue(
+		// 	new Uint8Array([0x78, 0x86, 4, 0xff, 0xff, 0xff, 0xff]),
+		// )
+		// await delay(100)
+	})
+})
+
 while (true) {
 	for (const light of lights) {
 		context.drawImage(video, 0, 0, canvasSize.width, canvasSize.height)
@@ -56,21 +85,12 @@ while (true) {
 		).data
 		const hsl = colorRgbToHsl(r, g, b)
 
-		light.element.style.setProperty('--base', `rgb(${r}, ${g}, ${b})`)
-		light.element.style.setProperty('--hue', `hsl(${hsl.h}, 100%, ${hsl.l}%)`)
+		const color = light.element.querySelector('.color')
 
-		try {
-			await fetch(
-				`http://${neewerServerIp}:8080/NeewerLite-Python/doAction?nopage&light=${
-					light.mac
-				}&mode=HSI&hue=${Math.floor(hsl.h)}&sat=${100}&brightness=${
-					hsl.l > 2 ? Math.ceil(hsl.l / 30) : 0
-				}`,
-			)
-		} catch (error) {
-			console.error(error)
-			await delay(250)
-		}
+		color.style.setProperty('--base', `rgb(${r}, ${g}, ${b})`)
+		color.style.setProperty('--hue', `hsl(${hsl.h}, 100%, ${hsl.l}%)`)
+
+		// @TODO: send command to bluetooth light
 		await delay(50)
 	}
 }
