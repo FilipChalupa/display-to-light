@@ -45,12 +45,40 @@ document.addEventListener('keyup', (event) => {
 	}
 })
 
+const sendColorCommand = async (bluetoothCharacteristic, hsl) => {
+	const prefixByte = 0x78
+	const tagByte = 0x86
+	const hueAByte = hsl.h & 0xff
+	const hueBByte = (hsl.h & 0xff00) >> 8
+	const saturationByte = hsl.s
+	const lightnessByte = hsl.l
+	const byteCountByte = 0x04
+	const payloadWithoutChecksum = new Uint8Array([
+		prefixByte,
+		tagByte,
+		byteCountByte,
+		hueAByte,
+		hueBByte,
+		saturationByte,
+		lightnessByte,
+	])
+	const checksum = payloadWithoutChecksum.reduce((sum, byte) => sum + byte, 0)
+	const payload = new Uint8Array(payloadWithoutChecksum.length + 1)
+	payload.set(payloadWithoutChecksum, 0)
+	payload.set(new Uint8Array([checksum]), payloadWithoutChecksum.length)
+	await bluetoothCharacteristic.writeValue(payload)
+}
+
+const setTurnCommand = async (bluetoothCharacteristic, on) => {
+	const onCommand = new Uint8Array([0x78, 0x81, 0x01, 0x01, 0xfb])
+	const offCommand = new Uint8Array([0x78, 0x81, 0x01, 0x02, 0xfc])
+	await bluetoothCharacteristic.writeValue(on ? onCommand : offCommand)
+}
+
 lights.forEach((light) => {
 	light.element.querySelector('button').addEventListener('click', async () => {
 		const serviceUuid = '69400001-b5a3-f393-e0a9-e50e24dcca99'
 		const characteristicUuid = '69400002-b5a3-f393-e0a9-e50e24dcca99'
-		const onCommand = new Uint8Array([0x78, 0x81, 0x01, 0x01, 0xfb])
-		const offCommand = new Uint8Array([0x78, 0x81, 0x01, 0x02, 0xfc])
 		const status = light.element.querySelector('.status')
 
 		try {
@@ -65,24 +93,21 @@ lights.forEach((light) => {
 			status.textContent = '🔗'
 
 			// Signalise connection established
-			for (let i = 0; i < 3; i++) {
-				await characteristic.writeValue(offCommand)
-				await delay(50)
-				await characteristic.writeValue(onCommand)
-				await delay(300)
-			}
+			await setTurnCommand(characteristic, true)
+			await delay(30)
+			// Green
+			await sendColorCommand(characteristic, {
+				h: 117,
+				s: 100,
+				l: 40,
+			})
+			await delay(1000)
 
 			light.bluetoothCharacteristic = characteristic
 		} catch (error) {
 			console.error(error)
 			alert('Connection failed.')
 		}
-
-		// await delay(100)
-		// await characteristic.writeValue(
-		// 	new Uint8Array([0x78, 0x86, 4, 0xff, 0xff, 0xff, 0xff]),
-		// )
-		// await delay(100)
 	})
 })
 
@@ -105,16 +130,15 @@ while (true) {
 		const { bluetoothCharacteristic: characteristic } = light
 		if (characteristic) {
 			try {
-				// @TODO: send command to bluetooth light
-				const onCommand = new Uint8Array([0x78, 0x81, 0x01, 0x01, 0xfb])
-				const offCommand = new Uint8Array([0x78, 0x81, 0x01, 0x02, 0xfc])
-				await characteristic.writeValue(onCommand)
-				await delay(5)
-				await characteristic.writeValue(offCommand)
+				await sendColorCommand(characteristic, {
+					h: hsl.h,
+					s: 100,
+					l: hsl.l > 2 ? Math.ceil(hsl.l / 30) : 0,
+				})
 			} catch (error) {
 				console.error(error)
 			}
 		}
-		await delay(50)
+		await delay(20)
 	}
 }
