@@ -1,5 +1,5 @@
-import { colorRgbToHsl } from '../utils/colorRgbToHsl.js'
-import { delay } from '../utils/delay.js'
+import { colorRgbToHsl } from './utils/colorRgbToHsl.js'
+import { delay } from './utils/delay.js'
 
 const videoStream = await navigator.mediaDevices.getUserMedia({ video: true })
 
