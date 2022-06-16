@@ -131,7 +131,7 @@ while (true) {
 		// @TODO: Maybe change allowedHues to range map <0; 25> => 0 ect.
 		const closestAllowedHue = {
 			value: null,
-			distance: 40,
+			distance: 60,
 		}
 		allowedHues.forEach((allowedHue) => {
 			const distance = Math.abs(allowedHue - hsl.h)
