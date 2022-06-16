@@ -76,7 +76,9 @@ const setTurnCommand = async (bluetoothCharacteristic, on) => {
 }
 
 lights.forEach((light) => {
-	light.element.querySelector('button').addEventListener('click', async () => {
+	const button = light.element.querySelector('button')
+	button.addEventListener('click', async () => {
+		button.textContent = 'Reconnect'
 		const serviceUuid = '69400001-b5a3-f393-e0a9-e50e24dcca99'
 		const characteristicUuid = '69400002-b5a3-f393-e0a9-e50e24dcca99'
 		const status = light.element.querySelector('.status')
