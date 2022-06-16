@@ -111,6 +111,8 @@ lights.forEach((light) => {
 	})
 })
 
+const allowedHues = [0, 240, 220, 360]
+
 while (true) {
 	for (const light of lights) {
 		context.drawImage(video, 0, 0, canvasSize.width, canvasSize.height)
@@ -125,10 +127,23 @@ while (true) {
 		const color = light.element.querySelector('.color')
 
 		color.style.setProperty('--base', `rgb(${r} ${g} ${b})`)
+
+		// @TODO: Maybe change allowedHues to range map <0; 25> => 0 ect.
+		const closestAllowedHue = {
+			value: null,
+			distance: 40,
+		}
+		allowedHues.forEach((allowedHue) => {
+			const distance = Math.abs(allowedHue - hsl.h)
+			if (distance < closestAllowedHue.distance) {
+				closestAllowedHue.value = allowedHue
+				closestAllowedHue.distance = distance
+			}
+		})
 		const modifiedHsl = {
-			h: hsl.h,
+			h: closestAllowedHue.value ?? 0,
 			s: 100,
-			l: hsl.s < 5 || hsl.l < 5 ? 0 : 1,
+			l: closestAllowedHue.value === null || hsl.s < 5 || hsl.l < 5 ? 0 : 1,
 		}
 		color.style.setProperty(
 			'--hue',
