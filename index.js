@@ -124,17 +124,21 @@ while (true) {
 
 		const color = light.element.querySelector('.color')
 
-		color.style.setProperty('--base', `rgb(${r}, ${g}, ${b})`)
-		color.style.setProperty('--hue', `hsl(${hsl.h}, 100%, ${hsl.l}%)`)
+		color.style.setProperty('--base', `rgb(${r} ${g} ${b})`)
+		const modifiedHsl = {
+			h: hsl.h,
+			s: 100,
+			l: hsl.s < 5 || hsl.l < 5 ? 0 : 1,
+		}
+		color.style.setProperty(
+			'--hue',
+			`hsl(${modifiedHsl.h}deg ${modifiedHsl.s}% ${modifiedHsl.l * 50}%)`,
+		)
 
 		const { bluetoothCharacteristic: characteristic } = light
 		if (characteristic) {
 			try {
-				await sendColorCommand(characteristic, {
-					h: hsl.h,
-					s: 100,
-					l: hsl.l > 2 ? Math.ceil(hsl.l / 30) : 0,
-				})
+				await sendColorCommand(characteristic, modifiedHsl)
 			} catch (error) {
 				console.error(error)
 			}
