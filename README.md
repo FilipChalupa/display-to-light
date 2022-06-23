@@ -8,7 +8,7 @@ This project grabs a webcam feed and extracts two dominant colors from it which 
 
 This utility helps me record myself playing VR games with more immersive style by casting colors onto my back. Check the video below.
 
-[![YouTube example](https://i3.ytimg.com/vi/vamompjWWh0/maxresdefault.jpg)](https://www.youtube.com/shorts/jbeIRpLz-3E)
+[![YouTube example](https://i3.ytimg.com/vi/vamompjWWh0/maxresdefault.jpg)](https://www.youtube.com/watch?v=vamompjWWh0)
 
 ### Other software used (optional)
 
